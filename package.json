@@ -1,0 +1,52 @@
+{
+  "name": "robot-replay-studio",
+  "version": "1.0.0",
+  "description": "Browser-local robot telemetry replay with synchronized incident, detector, scene, and signal views.",
+  "private": true,
+  "keywords": [
+    "robotics",
+    "autonomy",
+    "telemetry",
+    "threejs",
+    "incident-analysis"
+  ],
+  "type": "module",
+  "packageManager": "npm@10.9.4",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write . --ignore-unknown",
+    "format:check": "prettier --check . --ignore-unknown",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:perf": "vitest run tests/performance.test.ts",
+    "test:e2e:run": "playwright test",
+    "test:e2e": "npm run build && npm run test:e2e:run",
+    "size:check": "node scripts/check-bundle-size.mjs",
+    "check": "npm run format:check && npm run lint && npm run test:coverage && npm run build && npm run size:check && npm run test:e2e:run"
+  },
+  "dependencies": {
+    "three": "^0.178.0"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^24.13.3",
+    "@types/three": "^0.178.0",
+    "@vitest/coverage-v8": "^4.1.10",
+    "eslint": "^10.8.1",
+    "globals": "^17.9.0",
+    "prettier": "^3.9.6",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.67.0",
+    "vite": "^8.2.1",
+    "vitest": "^4.1.10"
+  }
+}

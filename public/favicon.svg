@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Robot Replay Studio route mark</title>
+  <rect width="64" height="64" fill="#232b32" />
+  <g
+    fill="none"
+    stroke="#ffffff"
+    stroke-width="4"
+    stroke-linecap="square"
+    stroke-linejoin="miter"
+  >
+    <path d="M7 27V8h11v9H7m8 0 6 10" />
+    <path d="M24 27V8h11v9H24m8 0 6 10" />
+    <path d="M56 8H42v9h14v10H42" />
+  </g>
+  <path
+    d="M8 51h14V40h17v11h17"
+    fill="none"
+    stroke="#d9952b"
+    stroke-width="5"
+    stroke-linecap="square"
+    stroke-linejoin="miter"
+  />
+  <path d="M5 48h6v6H5zM19 37h6v6h-6zM36 48h6v6h-6zM53 48h6v6H53z" fill="#d9952b" />
+</svg>

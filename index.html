@@ -1,0 +1,1093 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; base-uri 'self'; connect-src 'self' wss: ws://localhost:* ws://127.0.0.1:*; font-src 'self'; form-action 'self'; frame-src 'none'; img-src 'self' data:; manifest-src 'self'; media-src 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:"
+    />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="color-scheme" content="light" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="robots" content="index, follow" />
+    <meta name="application-name" content="Robot Replay Studio" />
+    <meta
+      name="description"
+      content="Replay recorded robot runs, inspect detector crossings, and compare telemetry against a baseline in the browser."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://omar-sabouni.github.io/robot-replay-studio/" />
+    <meta property="og:site_name" content="Robot Replay Studio" />
+    <meta property="og:title" content="Robot Replay Studio" />
+    <meta
+      property="og:description"
+      content="Replay robot runs, inspect detector crossings, and compare candidate telemetry with a nominal baseline."
+    />
+    <meta
+      property="og:image"
+      content="https://omar-sabouni.github.io/robot-replay-studio/social-preview.png"
+    />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Robot Replay Studio" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Robot Replay Studio" />
+    <meta
+      name="twitter:description"
+      content="Synchronized robot replay, detector state, and telemetry comparison."
+    />
+    <meta
+      name="twitter:image"
+      content="https://omar-sabouni.github.io/robot-replay-studio/social-preview.png"
+    />
+    <meta name="twitter:image:alt" content="Robot Replay Studio" />
+    <link rel="canonical" href="https://omar-sabouni.github.io/robot-replay-studio/" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <title>Robot Replay Studio</title>
+  </head>
+  <body>
+    <template id="app-shell-template">
+      <div class="app-shell" id="app-shell" data-mobile-view="replay">
+        <a class="skip-link" href="#workspace">Skip to replay workspace</a>
+
+        <main class="workspace" id="workspace" tabindex="-1">
+          <header class="casebar command-bar">
+            <div class="product-lockup">
+              <span class="product-copy">
+                <strong>Robot Replay Studio</strong>
+              </span>
+            </div>
+
+            <div class="mission-switcher">
+              <label for="mission-selector">Case</label>
+              <div class="select-wrap">
+                <select id="mission-selector" aria-describedby="mission-run-summary">
+                  <option value="east-loop-incident">East Loop / RPL-042</option>
+                  <option value="wheel-slip-drift">Wheel-slip / RPL-057</option>
+                  <option value="steady-route">Steady route / RPL-061</option>
+                </select>
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="m8 10 4 4 4-4" />
+                </svg>
+              </div>
+              <span class="mission-run-summary" id="mission-run-summary"
+                >Candidate + baseline · 900 samples · 20 Hz</span
+              >
+            </div>
+
+            <div class="case-actions" aria-label="Workspace actions">
+              <button
+                class="btn btn-iconable"
+                id="import-open"
+                type="button"
+                aria-label="Import telemetry"
+                aria-haspopup="dialog"
+                aria-controls="import-dialog"
+              >
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M12 21V9m0 0-4 4m4-4 4 4M5 4h14" /></svg
+                ><span class="button-text">Import</span>
+              </button>
+              <button
+                class="btn btn-iconable"
+                id="live-open"
+                type="button"
+                aria-label="Open live telemetry"
+                aria-haspopup="dialog"
+                aria-controls="live-dialog"
+              >
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M8 3v5m8-5v5M6 8h12v2a6 6 0 0 1-12 0V8Zm6 8v5" /></svg
+                ><span class="button-text">Live</span
+                ><span
+                  class="connection-dot"
+                  id="connection-dot"
+                  data-state="disconnected"
+                  aria-hidden="true"
+                ></span>
+              </button>
+              <button
+                class="btn btn-iconable fault-action"
+                id="fault-open"
+                type="button"
+                aria-label="Open Fault Lab"
+                aria-haspopup="dialog"
+                aria-controls="fault-dialog"
+              >
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path
+                    d="M9 3h6M10 3v5l-5.5 9.5A2.3 2.3 0 0 0 6.5 21h11a2.3 2.3 0 0 0 2-3.5L14 8V3"
+                  />
+                  <path d="M7 16h10" /></svg
+                ><span class="button-text">Fault Lab</span>
+              </button>
+              <div class="export-wrap">
+                <button
+                  class="btn btn-primary btn-iconable"
+                  id="export-button"
+                  type="button"
+                  aria-label="Export incident report"
+                  aria-expanded="false"
+                  aria-controls="export-panel"
+                >
+                  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 20h14" /></svg
+                  ><span class="button-text">Export</span
+                  ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="m8 10 4 4 4-4" />
+                  </svg>
+                </button>
+                <div
+                  class="export-panel popover-panel"
+                  id="export-panel"
+                  role="group"
+                  aria-label="Export report"
+                  hidden
+                >
+                  <div class="popover-intro">
+                    <strong>Incident report</strong>
+                    <span id="export-scope">Candidate, baseline, 4 incidents</span>
+                  </div>
+                  <button id="export-json" type="button">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <path d="M6 3h8l4 4v14H6z" />
+                      <path d="M14 3v5h5M9 13h6M9 17h6" /></svg
+                    ><span
+                      ><strong>JSON report</strong
+                      ><small>Incidents, thresholds, and samples</small></span
+                    >
+                  </button>
+                  <button id="export-markdown" type="button">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <path d="M6 3h8l4 4v14H6z" />
+                      <path d="M14 3v5h5M9 13h6M9 17h6" /></svg
+                    ><span
+                      ><strong>Markdown brief</strong><small>Plain-text case record</small></span
+                    >
+                  </button>
+                  <button id="export-print" type="button">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 20h14" /></svg
+                    ><span><strong>Print / PDF</strong><small>Browser print view</small></span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          <section class="mission-summary case-summary" aria-labelledby="mission-title">
+            <div class="mission-heading">
+              <h1 id="mission-title">East aisle inspection <span>· RPL-042</span></h1>
+              <p id="mission-subtitle">
+                Safe-stop followed a localization reset during degraded telemetry.
+              </p>
+            </div>
+            <dl
+              class="outcome-strip case-register"
+              id="outcome-kpis"
+              aria-label="Mission outcome metrics"
+              tabindex="0"
+            >
+              <div class="outcome-kpi outcome-kpi--state" data-tone="critical">
+                <dt>Mission state</dt>
+                <dd id="outcome-state"><span class="status-glyph"></span>Safe-stop</dd>
+                <dd class="kpi-meta" id="outcome-state-time">at 00:22.400</dd>
+              </div>
+              <div class="outcome-kpi">
+                <dt>Max route error</dt>
+                <dd id="outcome-route-error">0.84 <small>m</small></dd>
+                <dd class="kpi-delta" id="outcome-route-error-delta">+0.76 m vs baseline</dd>
+              </div>
+              <div class="outcome-kpi" data-tone="critical">
+                <dt>Min clearance</dt>
+                <dd id="outcome-clearance">0.31 <small>m</small></dd>
+                <dd class="kpi-delta" id="outcome-clearance-margin">0.19 m inside margin</dd>
+              </div>
+            </dl>
+          </section>
+
+          <div class="mobile-tabs" id="mobile-tabs" role="tablist" aria-label="Workbench views">
+            <button
+              id="mobile-tab-replay"
+              type="button"
+              role="tab"
+              aria-selected="true"
+              aria-controls="mobile-panel-replay"
+              data-mobile-target="replay"
+            >
+              Replay
+            </button>
+            <button
+              id="mobile-tab-incidents"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              aria-controls="mobile-panel-incidents"
+              data-mobile-target="incidents"
+            >
+              Incidents <span id="mobile-incident-count">4</span>
+            </button>
+            <button
+              id="mobile-tab-evidence"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              aria-controls="mobile-panel-evidence"
+              data-mobile-target="evidence"
+            >
+              Detector
+            </button>
+            <button
+              id="mobile-tab-signals"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              aria-controls="mobile-panel-signals"
+              data-mobile-target="signals"
+            >
+              Signals
+            </button>
+          </div>
+
+          <section class="workbench-grid analysis-grid" aria-label="Synchronized incident replay">
+            <section
+              class="events-panel panel-frame"
+              id="mobile-panel-incidents"
+              data-mobile-panel="incidents"
+              data-mobile-active="false"
+            >
+              <div class="panel-heading evidence-head">
+                <div>
+                  <h2 id="events-title">
+                    Incidents
+                    <span class="count-badge" id="detected-stat" aria-live="polite">4</span>
+                  </h2>
+                </div>
+              </div>
+              <div class="incident-filter">
+                <label class="search-control" for="incident-search"
+                  ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <circle cx="11" cy="11" r="7" />
+                    <path d="m16 16 5 5" /></svg
+                  ><input
+                    id="incident-search"
+                    type="search"
+                    placeholder="Filter incidents"
+                    autocomplete="off"
+                /></label>
+                <button
+                  class="icon-btn compact-button"
+                  id="incident-filter"
+                  type="button"
+                  data-filter="all"
+                  aria-label="Show all incidents"
+                >
+                  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="m12 3 9 5-9 5-9-5 9-5Z" />
+                    <path d="m3 12 9 5 9-5M3 16l9 5 9-5" />
+                  </svg>
+                </button>
+              </div>
+              <div class="event-list" id="event-list">
+                <div class="event-empty" id="event-empty">
+                  <span class="loading-line"></span><span>Analysing detector rules…</span>
+                </div>
+              </div>
+              <footer class="panel-footer incident-footer">
+                <button id="open-rules" type="button">Configure rules</button>
+              </footer>
+            </section>
+
+            <section
+              class="viewport-panel panel-frame"
+              id="mobile-panel-replay"
+              data-mobile-panel="replay"
+              data-mobile-active="true"
+            >
+              <div class="panel-heading viewport-topline">
+                <div class="scene-title-row">
+                  <h2 id="scene-title">Replay</h2>
+                </div>
+                <div class="viewport-actions">
+                  <div class="segmented" role="group" aria-label="Display mode">
+                    <button type="button" data-view-mode="compare" aria-pressed="true">
+                      Overlay
+                    </button>
+                    <button type="button" data-view-mode="single" aria-pressed="false">
+                      Candidate
+                    </button>
+                  </div>
+                  <div class="segmented camera-segment" role="group" aria-label="Camera mode">
+                    <button type="button" data-camera="orbit" aria-pressed="true">Orbit</button>
+                    <button type="button" data-camera="follow" aria-pressed="false">Follow</button>
+                  </div>
+                </div>
+              </div>
+              <div class="scene-stage" id="scene-stage" data-comparison="true">
+                <div class="scene-mount" id="scene-mount" aria-busy="true"></div>
+                <div class="scene-hud scene-hud--left" aria-label="Replay status">
+                  <span class="run-status" id="run-status" data-state="review"
+                    ><i></i>Reviewing incident</span
+                  >
+                  <strong id="scene-timecode">00:16.800</strong>
+                </div>
+                <div class="scene-legend" role="group" aria-label="Run legend">
+                  <span><i class="candidate"></i>Candidate</span>
+                  <span class="baseline-legend"><i class="baseline"></i>Baseline</span>
+                  <span><i class="planned"></i>Planned route</span>
+                  <span><i class="safety"></i>Safety margin</span>
+                </div>
+                <div class="scene-tools" role="group" aria-label="Scene controls">
+                  <button class="icon-btn" id="scene-zoom-in" type="button" aria-label="Zoom in">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <circle cx="10.5" cy="10.5" r="6.5" />
+                      <path d="m15.5 15.5 5 5M10.5 7v7m-3.5-3.5h7" />
+                    </svg>
+                  </button>
+                  <button class="icon-btn" id="scene-zoom-out" type="button" aria-label="Zoom out">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <circle cx="10.5" cy="10.5" r="6.5" />
+                      <path d="m15.5 15.5 5 5M7 10.5h7" />
+                    </svg>
+                  </button>
+                  <button
+                    class="icon-btn"
+                    id="reset-view"
+                    type="button"
+                    aria-label="Frame all replay paths"
+                  >
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <path
+                        d="M14.5 6 13 4h-2L9.5 6H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-4.5Z"
+                      />
+                      <circle cx="12" cy="12.5" r="3.5" />
+                    </svg>
+                  </button>
+                </div>
+                <p class="visually-hidden" id="scene-instructions">
+                  Use arrow keys to rotate, Shift plus arrow keys to pan, plus or minus to zoom, and
+                  Home to frame the replay. On touch screens, pinch to zoom and drag with two
+                  fingers to pan.
+                </p>
+              </div>
+            </section>
+
+            <section
+              class="detail-panel panel-frame"
+              id="mobile-panel-evidence"
+              data-mobile-panel="evidence"
+              data-mobile-active="false"
+            >
+              <div class="panel-heading observation-head">
+                <div>
+                  <h2 id="inspector-title">Link latency above limit</h2>
+                </div>
+              </div>
+              <div class="inspector-tabs" role="tablist" aria-label="Inspector views">
+                <button
+                  id="inspector-tab-evidence"
+                  type="button"
+                  role="tab"
+                  aria-selected="true"
+                  aria-controls="inspector-panel-evidence"
+                >
+                  Detector
+                </button>
+                <button
+                  id="inspector-tab-sample"
+                  type="button"
+                  role="tab"
+                  aria-selected="false"
+                  aria-controls="inspector-panel-sample"
+                  tabindex="-1"
+                >
+                  Sample
+                </button>
+                <button
+                  id="inspector-tab-rules"
+                  type="button"
+                  role="tab"
+                  aria-selected="false"
+                  aria-controls="inspector-panel-rules"
+                  tabindex="-1"
+                >
+                  Rule
+                </button>
+              </div>
+
+              <div class="inspector-scroll">
+                <section
+                  class="inspector-view"
+                  id="inspector-panel-evidence"
+                  role="tabpanel"
+                  aria-labelledby="inspector-tab-evidence"
+                >
+                  <div class="evidence-verdict" data-severity="warning">
+                    <span>Observed</span>
+                    <strong id="evidence-observed">486 <small>ms</small></strong>
+                    <i aria-hidden="true"></i>
+                    <span>Threshold</span>
+                    <strong id="evidence-threshold">250 <small>ms</small></strong>
+                  </div>
+                  <figure class="evidence-sparkline">
+                    <figcaption>
+                      <span id="evidence-sparkline-label">Detector channel · ±3 s</span
+                      ><span
+                        ><i></i><span id="evidence-sparkline-threshold-label">Threshold</span></span
+                      >
+                    </figcaption>
+                    <div id="evidence-sparkline" aria-label="Link latency sparkline"></div>
+                  </figure>
+                  <section class="rule-card" aria-labelledby="rule-summary-title">
+                    <div class="rule-card__head">
+                      <span>Detector rule</span>
+                    </div>
+                    <h3 id="rule-summary-title">Sustained data age exceeds 250 ms</h3>
+                    <p id="evidence-rule-description">
+                      Fires when the rolling median remains beyond the limit for at least 400 ms.
+                    </p>
+                    <div class="rule-expression" id="evidence-rule-expression">
+                      <code>median(latency, 0.4s) &gt; 250ms</code>
+                    </div>
+                  </section>
+                  <section class="evidence-chain" aria-labelledby="evidence-chain-title">
+                    <div class="subheading">
+                      <h3 id="evidence-chain-title">Detector sequence</h3>
+                    </div>
+                    <ol id="evidence-chain-list">
+                      <li data-state="active">
+                        <i></i>
+                        <div>
+                          <time>16.8 s</time><strong>Link degradation</strong
+                          ><span>Latency +452 ms vs baseline</span>
+                        </div>
+                      </li>
+                      <li>
+                        <i></i>
+                        <div>
+                          <time>19.1 s</time><strong>Localization reset</strong
+                          ><span>0.62 m discontinuity</span>
+                        </div>
+                      </li>
+                      <li>
+                        <i></i>
+                        <div>
+                          <time>21.7 s</time><strong>Controller saturation</strong
+                          ><span>18.6 A peak current</span>
+                        </div>
+                      </li>
+                      <li>
+                        <i></i>
+                        <div>
+                          <time>22.4 s</time><strong>Safety stop</strong
+                          ><span>Clearance margin breached</span>
+                        </div>
+                      </li>
+                    </ol>
+                  </section>
+                </section>
+
+                <section
+                  class="inspector-view"
+                  id="inspector-panel-sample"
+                  role="tabpanel"
+                  aria-labelledby="inspector-tab-sample"
+                  hidden
+                >
+                  <div class="sample-time-row">
+                    <div>
+                      <span>Selected time</span
+                      ><strong class="timestamp-readout" id="timestamp-value">00:16.800</strong>
+                    </div>
+                    <span class="sample-freshness" id="sample-freshness" data-status="exact"
+                      ><i></i>Exact sample</span
+                    >
+                  </div>
+                  <div class="run-comparison-labels">
+                    <span><i class="candidate"></i>Candidate</span
+                    ><span><i class="baseline"></i>Baseline</span>
+                  </div>
+                  <dl class="sample-matrix">
+                    <div>
+                      <dt>Linear speed</dt>
+                      <dd id="speed-value">1.42 <small>m/s</small></dd>
+                      <dd id="baseline-speed-value">1.47 <small>m/s</small></dd>
+                    </div>
+                    <div id="current-cell">
+                      <dt>Motor current</dt>
+                      <dd id="current-value">11.4 <small>A</small></dd>
+                      <dd id="baseline-current-value">9.8 <small>A</small></dd>
+                    </div>
+                    <div id="battery-cell">
+                      <dt>Battery</dt>
+                      <dd id="battery-value">87.2 <small>%</small></dd>
+                      <dd id="baseline-battery-value">87.5 <small>%</small></dd>
+                    </div>
+                    <div>
+                      <dt>Route error</dt>
+                      <dd id="delta-value">+0.19 <small>m</small></dd>
+                      <dd id="baseline-delta-value">+0.04 <small>m</small></dd>
+                    </div>
+                    <div>
+                      <dt>Pose X</dt>
+                      <dd id="pose-x">+12.480</dd>
+                      <dd id="baseline-pose-x">+12.442</dd>
+                    </div>
+                    <div>
+                      <dt>Pose Y</dt>
+                      <dd id="pose-y">+3.218</dd>
+                      <dd id="baseline-pose-y">+3.071</dd>
+                    </div>
+                    <div>
+                      <dt>Yaw</dt>
+                      <dd id="pose-yaw">+89.7°</dd>
+                      <dd id="baseline-pose-yaw">+90.1°</dd>
+                    </div>
+                  </dl>
+                  <div class="diagnostic-card" id="diagnostic-card" data-severity="warning">
+                    <div class="event-meta">
+                      <span id="diagnostic-relation">Active incident</span
+                      ><span id="nearest-delta">T+00.000</span>
+                    </div>
+                    <strong id="nearest-title">Link latency above limit</strong>
+                    <p id="nearest-description">
+                      Candidate samples are held across the missing-data interval and are never
+                      interpolated.
+                    </p>
+                  </div>
+                  <span class="state-label visually-hidden" id="state-value"
+                    >Reviewing incident</span
+                  >
+                </section>
+
+                <section
+                  class="inspector-view"
+                  id="inspector-panel-rules"
+                  role="tabpanel"
+                  aria-labelledby="inspector-tab-rules"
+                  hidden
+                >
+                  <div class="rules-intro">
+                    <p>Threshold changes re-run the detectors. Telemetry values stay unchanged.</p>
+                    <span id="rules-enabled-count">10 enabled</span>
+                  </div>
+                  <form class="rules-form" id="rules-form">
+                    <fieldset>
+                      <legend>
+                        <span>Network latency</span
+                        ><label class="switch"
+                          ><input id="rule-latency-enabled" type="checkbox" checked /><span></span
+                          ><b class="visually-hidden">Enable network latency detector</b></label
+                        >
+                      </legend>
+                      <label for="rule-latency-threshold"
+                        >Threshold floor
+                        <span
+                          ><input
+                            id="rule-latency-threshold"
+                            type="number"
+                            value="250"
+                            min="10"
+                            max="5000"
+                            required
+                          />
+                          ms</span
+                        ></label
+                      >
+                      <label for="rule-latency-duration"
+                        >Minimum duration
+                        <span
+                          ><input
+                            id="rule-latency-duration"
+                            type="number"
+                            value="400"
+                            min="50"
+                            max="10000"
+                            required
+                          />
+                          ms</span
+                        ></label
+                      >
+                    </fieldset>
+                    <fieldset>
+                      <legend>
+                        <span>Route deviation</span
+                        ><label class="switch"
+                          ><input id="rule-route-enabled" type="checkbox" checked /><span></span
+                          ><b class="visually-hidden">Enable route deviation detector</b></label
+                        >
+                      </legend>
+                      <label for="rule-route-threshold"
+                        >Threshold
+                        <span
+                          ><input
+                            id="rule-route-threshold"
+                            type="number"
+                            value="0.5"
+                            min="0.05"
+                            max="10"
+                            step="0.05"
+                            required
+                          />
+                          m</span
+                        ></label
+                      >
+                    </fieldset>
+                    <fieldset>
+                      <legend>
+                        <span>Motor load</span
+                        ><label class="switch"
+                          ><input id="rule-current-enabled" type="checkbox" checked /><span></span
+                          ><b class="visually-hidden">Enable motor load detector</b></label
+                        >
+                      </legend>
+                      <label for="rule-current-threshold"
+                        >Threshold
+                        <span
+                          ><input
+                            id="rule-current-threshold"
+                            type="number"
+                            value="16"
+                            min="1"
+                            max="100"
+                            step="0.5"
+                            required
+                          />
+                          A</span
+                        ></label
+                      >
+                    </fieldset>
+                    <div class="rules-actions">
+                      <button class="btn" id="rules-reset" type="reset">Restore defaults</button
+                      ><button class="btn btn-primary" id="rules-apply" type="submit">
+                        Apply rules
+                      </button>
+                    </div>
+                  </form>
+                </section>
+              </div>
+            </section>
+
+            <section
+              class="signals-panel"
+              id="mobile-panel-signals"
+              data-mobile-panel="signals"
+              data-mobile-active="false"
+              role="tabpanel"
+              aria-labelledby="mobile-tab-signals"
+            >
+              <section class="timeline-panel panel-frame" aria-labelledby="timeline-title">
+                <div class="panel-heading timeline-head">
+                  <div>
+                    <h2 id="timeline-title">Timeline</h2>
+                  </div>
+                </div>
+                <div class="timeline-body">
+                  <div class="scrubber-wrap" id="scrubber-wrap">
+                    <div class="scrubber-track"></div>
+                    <div class="scrubber-fill" id="scrubber-fill"></div>
+                    <div id="timeline-windows" aria-hidden="true"></div>
+                    <div id="timeline-gaps"></div>
+                    <div id="timeline-markers"></div>
+                    <div class="playhead" id="playhead" aria-hidden="true"></div>
+                    <input
+                      class="scrubber"
+                      id="scrubber"
+                      type="range"
+                      min="0"
+                      max="45"
+                      step="0.001"
+                      value="16.8"
+                      aria-label="Replay timestamp"
+                      aria-valuetext="00:16.800 of 00:45.000"
+                    />
+                  </div>
+                  <div class="timeline-ticks" id="timeline-ticks">
+                    <span>00:00</span><span>00:09</span><span>00:18</span><span>00:27</span
+                    ><span>00:36</span><span>00:45</span>
+                  </div>
+                </div>
+              </section>
+
+              <article class="telemetry-panel panel-frame" aria-labelledby="telemetry-title">
+                <div class="panel-heading telemetry-heading evidence-head">
+                  <div>
+                    <h2 id="telemetry-title">Signals</h2>
+                  </div>
+                  <div class="signal-actions">
+                    <button class="btn btn-small" id="signal-settings" type="button">
+                      Channels
+                    </button>
+                  </div>
+                </div>
+                <div class="signal-status" id="signal-status" role="status">
+                  <span class="status-dot status-dot--nominal"></span
+                  ><span id="sample-stat">900 samples</span><span id="duration-stat">45.000 s</span>
+                </div>
+                <div class="telemetry-body">
+                  <div id="charts" aria-label="Candidate and baseline telemetry charts"></div>
+                </div>
+              </article>
+            </section>
+
+            <section class="transport-dock panel-frame" aria-label="Replay transport">
+              <div class="transport">
+                <div
+                  class="transport-group transport-primary"
+                  role="group"
+                  aria-label="Replay controls"
+                >
+                  <button
+                    class="icon-btn"
+                    id="step-back"
+                    type="button"
+                    aria-label="Step backward 100 milliseconds"
+                  >
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <path d="M7 6v12M17 7l-7 5 7 5Z" />
+                    </svg>
+                  </button>
+                  <button
+                    class="icon-btn play"
+                    id="play-pause"
+                    type="button"
+                    aria-label="Play replay"
+                  >
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <path d="m9 6 9 6-9 6Z" />
+                    </svg>
+                  </button>
+                  <button
+                    class="icon-btn"
+                    id="step-forward"
+                    type="button"
+                    aria-label="Step forward 100 milliseconds"
+                  >
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <path d="M17 6v12M7 7l7 5-7 5Z" />
+                    </svg>
+                  </button>
+                </div>
+                <div class="timecode">
+                  <b id="current-timecode">00:16.800</b
+                  ><span id="duration-timecode">/ 00:45.000</span>
+                </div>
+                <div class="transport-context" id="transport-context">
+                  <span data-severity="warning">NET</span><strong>Link degraded</strong>
+                </div>
+                <div
+                  class="transport-group speed-controls"
+                  role="group"
+                  aria-label="Playback speed"
+                >
+                  <span class="speed-label">Rate</span>
+                  <button class="speed-button" type="button" data-speed="0.5" aria-pressed="false">
+                    0.5×
+                  </button>
+                  <button class="speed-button" type="button" data-speed="1" aria-pressed="true">
+                    1×
+                  </button>
+                  <button class="speed-button" type="button" data-speed="2" aria-pressed="false">
+                    2×
+                  </button>
+                </div>
+              </div>
+            </section>
+          </section>
+        </main>
+
+        <dialog class="modal" id="import-dialog" aria-labelledby="import-title">
+          <form class="modal-shell" id="import-form">
+            <header class="modal-header">
+              <div>
+                <h2 id="import-title">Import telemetry</h2>
+              </div>
+              <button
+                class="icon-btn modal-close"
+                type="button"
+                data-dialog-close
+                aria-label="Close import dialog"
+              >
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="m6 6 12 12M18 6 6 18" />
+                </svg>
+              </button>
+            </header>
+            <div class="modal-body">
+              <label class="drop-zone" id="import-drop-zone" for="import-file">
+                <span class="drop-zone__icon"
+                  ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M12 21V9m0 0-4 4m4-4 4 4M5 4h14" /></svg
+                ></span>
+                <strong>Drop a recording or choose a file</strong>
+                <span>Session JSON, CSV, or ROS-bridge JSONL · up to 16 MiB</span>
+                <input
+                  class="visually-hidden"
+                  id="import-file"
+                  type="file"
+                  accept=".json,.csv,.jsonl,application/json,text/csv,application/x-ndjson"
+                />
+              </label>
+              <div class="form-grid">
+                <label
+                  >Format<select id="import-format">
+                    <option value="auto">Detect automatically</option>
+                    <option value="session-json">Session JSON</option>
+                    <option value="csv">CSV</option>
+                    <option value="ros-jsonl">ROS-bridge JSONL</option>
+                  </select></label
+                >
+                <label
+                  >Import as<select id="import-role">
+                    <option value="candidate">Candidate run</option>
+                    <option value="baseline">Baseline run</option>
+                    <option value="session">Complete session (JSON)</option>
+                  </select></label
+                >
+                <label
+                  >Yaw unit<select id="import-yaw-unit">
+                    <option value="radians">Radians</option>
+                    <option value="degrees">Degrees</option>
+                  </select></label
+                >
+                <label
+                  >Timestamp unit<select id="import-time-unit">
+                    <option value="seconds">Seconds</option>
+                    <option value="milliseconds">Milliseconds</option>
+                    <option value="nanoseconds">Nanoseconds</option>
+                  </select></label
+                >
+              </div>
+              <div
+                class="import-progress"
+                id="import-progress"
+                role="status"
+                aria-live="polite"
+                hidden
+              >
+                <div>
+                  <span id="import-progress-label">Parsing recording…</span
+                  ><strong id="import-progress-value">0%</strong>
+                </div>
+                <progress
+                  id="import-progress-bar"
+                  max="100"
+                  value="0"
+                  aria-labelledby="import-progress-label"
+                >
+                  0%</progress
+                ><button class="btn" id="import-cancel" type="button">Cancel</button>
+              </div>
+              <div class="form-errors" id="import-errors" role="alert" tabindex="-1" hidden></div>
+              <p class="privacy-note">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="m5 12 4 4L19 6" />
+                </svg>
+                The file is processed in this browser. Nothing is uploaded or saved.
+              </p>
+            </div>
+            <footer class="modal-footer">
+              <button class="btn" type="button" data-dialog-close>Cancel</button
+              ><button class="btn btn-primary" id="import-submit" type="submit" disabled>
+                Import recording
+              </button>
+            </footer>
+          </form>
+        </dialog>
+
+        <dialog class="modal" id="live-dialog" aria-labelledby="live-title">
+          <form class="modal-shell" id="live-form">
+            <header class="modal-header">
+              <div>
+                <h2 id="live-title">Live telemetry</h2>
+              </div>
+              <button
+                class="icon-btn modal-close"
+                type="button"
+                data-dialog-close
+                aria-label="Close live telemetry dialog"
+              >
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="m6 6 12 12M18 6 6 18" />
+                </svg>
+              </button>
+            </header>
+            <div class="modal-body">
+              <div class="source-cards" role="radiogroup" aria-label="Telemetry source">
+                <label class="source-card"
+                  ><input type="radio" name="live-source" value="simulator" checked /><span
+                    ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <path d="M3 12h4l2-7 4 14 2-7h6" /></svg
+                    ><strong>Live Simulator</strong><small>20 Hz local stream</small></span
+                  ></label
+                >
+                <label class="source-card"
+                  ><input type="radio" name="live-source" value="websocket" /><span
+                    ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <path d="M8 3v5m8-5v5M6 8h12v2a6 6 0 0 1-12 0V8Zm6 8v5" /></svg
+                    ><strong>WebSocket</strong><small>Connect to a telemetry stream</small></span
+                  ></label
+                >
+              </div>
+              <label class="field-stack" for="live-url"
+                >Secure WebSocket URL<input
+                  id="live-url"
+                  type="url"
+                  value="wss://localhost:8443/telemetry"
+                  inputmode="url"
+                  spellcheck="false"
+              /></label>
+              <div
+                class="connection-status"
+                id="connection-status"
+                data-state="disconnected"
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                <span class="connection-status__icon"></span>
+                <div>
+                  <strong id="connection-state-label">Disconnected</strong
+                  ><small id="connection-state-detail">No samples received</small>
+                </div>
+                <code id="connection-buffer">0 / 50,000</code>
+              </div>
+              <div class="protocol-note">
+                <strong>Wire contract</strong
+                ><span
+                  ><code>hello</code>, <code>sample</code>, <code>event</code>,
+                  <code>end</code></span
+                >
+              </div>
+              <p class="privacy-note">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 11v6m0-10h.01" />
+                </svg>
+                HTTPS requires a user-initiated <code>wss:</code> connection. Credentials are not
+                stored.
+              </p>
+            </div>
+            <footer class="modal-footer">
+              <button class="btn" type="button" data-dialog-close>Cancel</button
+              ><button class="btn btn-primary" id="live-connect" type="submit">
+                Start simulator
+              </button>
+            </footer>
+          </form>
+        </dialog>
+
+        <dialog class="modal" id="fault-dialog" aria-labelledby="fault-title">
+          <form class="modal-shell modal-shell--wide" id="fault-form">
+            <header class="modal-header">
+              <div>
+                <h2 id="fault-title">Fault Lab</h2>
+              </div>
+              <button
+                class="icon-btn modal-close"
+                type="button"
+                data-dialog-close
+                aria-label="Close Fault Lab"
+              >
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="m6 6 12 12M18 6 6 18" />
+                </svg>
+              </button>
+            </header>
+            <div class="modal-body fault-layout">
+              <div class="fault-types" role="radiogroup" aria-label="Fault transformation">
+                <label
+                  ><input type="radio" name="fault-type" value="dropout" checked /><span
+                    ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <path d="M3 12h4l2-7 4 14 2-7h6" /></svg
+                    ><strong>Packet dropout</strong><small>Insert missing telemetry</small></span
+                  ></label
+                >
+                <label
+                  ><input type="radio" name="fault-type" value="pose-reset" /><span
+                    ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <path d="m12 3 9 5-9 5-9-5 9-5Z" />
+                      <path d="m3 12 9 5 9-5M3 16l9 5 9-5" /></svg
+                    ><strong>Pose reset</strong><small>Offset position and yaw</small></span
+                  ></label
+                >
+                <label
+                  ><input type="radio" name="fault-type" value="motor-load" /><span
+                    ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <path d="M12 4 3.5 19h17L12 4Z" />
+                      <path d="M12 9v4m0 3h.01" /></svg
+                    ><strong>Motor load</strong><small>Multiply current demand</small></span
+                  ></label
+                >
+              </div>
+              <div class="fault-controls">
+                <div class="fault-anchor">
+                  <span>Branch at playhead</span><strong id="fault-anchor-time">00:16.800</strong>
+                </div>
+                <label for="fault-duration"
+                  >Duration <output id="fault-duration-output" for="fault-duration">1.2 s</output
+                  ><input id="fault-duration" type="range" min="0.1" max="3" step="0.1" value="1.2"
+                /></label>
+                <label for="fault-pose-x"
+                  >Position X offset
+                  <output id="fault-pose-x-output" for="fault-pose-x">+0.0 m</output
+                  ><input
+                    id="fault-pose-x"
+                    type="range"
+                    min="-2"
+                    max="2"
+                    step="0.1"
+                    value="0"
+                    disabled
+                /></label>
+                <label for="fault-pose-yaw"
+                  >Yaw offset <output id="fault-pose-yaw-output" for="fault-pose-yaw">+0°</output
+                  ><input
+                    id="fault-pose-yaw"
+                    type="range"
+                    min="-90"
+                    max="90"
+                    step="5"
+                    value="0"
+                    disabled
+                /></label>
+                <label for="fault-load"
+                  >Load multiplier <output id="fault-load-output" for="fault-load">1.5×</output
+                  ><input
+                    id="fault-load"
+                    type="range"
+                    min="1"
+                    max="3"
+                    step="0.1"
+                    value="1.5"
+                    disabled
+                /></label>
+                <div class="fault-preview" id="fault-preview">
+                  <span>Expected branch</span><strong>24 samples removed</strong
+                  ><small>Current run stays intact.</small>
+                </div>
+              </div>
+            </div>
+            <footer class="modal-footer">
+              <button class="btn danger-quiet" id="fault-reset" type="button">Reset branch</button
+              ><span class="footer-spacer"></span
+              ><button class="btn" type="button" data-dialog-close>Cancel</button
+              ><button class="btn btn-primary" id="fault-apply" type="submit">Apply branch</button>
+            </footer>
+          </form>
+        </dialog>
+
+        <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true">
+          <span class="toast-icon"
+            ><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="m5 12 4 4L19 6" /></svg></span
+          ><span id="toast-text">Ready</span>
+        </div>
+      </div>
+    </template>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
