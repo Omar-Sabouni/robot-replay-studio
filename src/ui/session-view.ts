@@ -119,11 +119,11 @@ export function formatStateLabel(state: string | null | undefined): string {
 export function formatFreshness(status: ReplaySampleStatus): string {
   switch (status) {
     case "held-during-gap":
-      return "Held · telemetry gap";
+      return "Last known (telemetry gap)";
     case "before-range":
       return "Before first sample";
     case "after-range":
-      return "Run complete · final sample";
+      return "Final sample";
     case "interpolated":
       return "Interpolated sample";
     case "exact":
@@ -194,7 +194,7 @@ export function detectorRuleSummary(rule: DetectorRuleConfig): string {
     case "low-battery":
       return `Battery reserve falls below ${threshold} ${unit}`;
     case "link-degradation":
-      return `Sustained data age exceeds ${threshold} ${unit}`;
+      return `Link latency exceeds ${threshold} ${unit}`;
     case "route-deviation":
       return `Cross-track error exceeds ${threshold} ${unit}`;
     case "heading-error":
@@ -211,7 +211,7 @@ export function detectorRuleDescription(rule: DetectorRuleConfig): string {
     return rule.unavailableReason;
   }
   if (!rule.enabled) {
-    return "This detector is disabled and does not contribute incidents.";
+    return "";
   }
   if (rule.minimumDuration <= 0) {
     return "Fires on the first sample that crosses the configured boundary.";

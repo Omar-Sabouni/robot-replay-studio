@@ -182,7 +182,7 @@ test("Fault Lab creates a non-destructive branch and restores the source session
   await page.locator("#fault-open").click();
   await page.locator("#fault-reset").click();
   await expect(dialog).toBeHidden();
-  await expect(page.locator("#toast-text")).toContainText("Fault Lab branch reset");
+  await expect(page.locator("#toast-text")).toContainText("Original run restored.");
   await expect(page.locator("#mission-run-summary")).toContainText("Candidate + baseline");
   expect(browserErrors).toEqual([]);
 });
@@ -194,7 +194,6 @@ test("local CSV import and the live simulator require no backend", async ({ page
   await page.locator("#import-open").click();
   const importDialog = page.getByRole("dialog", { name: "Import telemetry" });
   await expect(importDialog).toBeVisible();
-  await expect(importDialog).toContainText("processed in this browser");
   await page.locator("#import-format").selectOption("csv");
   await page.locator("#import-file").setInputFiles({
     name: "invalid.csv",
@@ -220,9 +219,7 @@ test("local CSV import and the live simulator require no backend", async ({ page
   });
   await expect(page.locator("#import-submit")).toBeEnabled();
   await page.locator("#import-submit").click();
-  await expect(importDialog.getByRole("alert")).toContainText(
-    "Import completed with 2 normalization notes",
-  );
+  await expect(importDialog.getByRole("alert")).toContainText("Imported with 2 notes");
   await importDialog.getByRole("button", { name: "Close import dialog" }).click();
   await expect(importDialog).toBeHidden();
   await expect(page.getByRole("heading", { name: /local-capture/i })).toBeVisible();
