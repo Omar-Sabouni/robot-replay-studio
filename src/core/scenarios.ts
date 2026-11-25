@@ -22,7 +22,7 @@ export const SCENARIO_CATALOG: readonly ScenarioDescriptor[] = Object.freeze([
     id: "east-loop-incident",
     name: "East Loop / RPL-042",
     outcome: "safe-stop",
-    summary: "Link degradation precedes localization reset, route deviation, and safe-stop.",
+    summary: "High link latency precedes localization reset, route deviation, and safe-stop.",
   }),
   Object.freeze({
     id: "wheel-slip-drift",

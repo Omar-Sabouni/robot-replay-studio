@@ -203,7 +203,7 @@ function publicImportErrorMessage(error: unknown): string {
     case "unsupported-format":
       return "This recording format is not supported.";
     case "missing-option":
-      return "Choose the required import options and try again.";
+      return "Choose the timestamp and yaw units, then try again.";
     case "missing-topic":
       return "This recording does not contain a supported telemetry topic.";
     case "timestamp-order":
@@ -1247,7 +1247,7 @@ export class RobotReplayStudio {
         onContextLost: () => {
           this.fallbackForced = true;
           this.fallback?.setHidden(false);
-          this.fallback?.setUnavailable("WebGL context lost · top-down replay remains active");
+          this.fallback?.setUnavailable("The 3D view stopped. Showing the top-down view.");
           this.syncSceneRendering();
         },
         onContextRestored: () => {
@@ -1566,8 +1566,8 @@ export class RobotReplayStudio {
     if (announce) {
       this.showToast(
         this.catalogIdentity === null
-          ? "Kept the current custom session"
-          : "Kept the current mission",
+          ? "Loading cancelled. The current session is still open."
+          : "Loading cancelled. The current case is still open.",
       );
     }
   }
@@ -1653,8 +1653,8 @@ export class RobotReplayStudio {
     } catch (error) {
       throw workerInfrastructureError(
         error instanceof Error
-          ? `Unable to start analysis worker: ${error.message}`
-          : "Unable to start analysis worker",
+          ? "Analysis couldn't start. Reload the page and try again."
+          : "Analysis couldn't start. Reload the page and try again.",
       );
     }
   }
@@ -1694,7 +1694,7 @@ export class RobotReplayStudio {
           this.worker.terminate();
           this.worker = null;
         }
-        reject(workerInfrastructureError("Analysis worker failed"));
+        reject(workerInfrastructureError("Analysis failed. Reload the page and try again."));
       };
       const handleMessageError = (): void => {
         cleanup();
@@ -1702,7 +1702,7 @@ export class RobotReplayStudio {
           this.worker.terminate();
           this.worker = null;
         }
-        reject(workerInfrastructureError("Analysis worker returned an unreadable message"));
+        reject(workerInfrastructureError("Analysis failed. Reload the page and try again."));
       };
       const handleAbort = (): void => {
         cleanup();
@@ -1732,8 +1732,8 @@ export class RobotReplayStudio {
         reject(
           workerInfrastructureError(
             error instanceof Error
-              ? `Unable to send work to the analysis worker: ${error.message}`
-              : "Unable to send work to the analysis worker",
+              ? "Analysis failed. Reload the page and try again."
+              : "Analysis failed. Reload the page and try again.",
           ),
         );
       }
@@ -1791,7 +1791,7 @@ export class RobotReplayStudio {
       if (result.kind === "fault-branch" && result.analysis !== undefined) {
         return { session: result.session, analysis: result.analysis };
       }
-      throw new Error("Unexpected fault branch result");
+      throw new Error("Applying the fault failed. Try again.");
     } catch (error) {
       assertNotAborted(signal);
       if (
@@ -2221,7 +2221,7 @@ export class RobotReplayStudio {
         const current = detectors.rules.overcurrent;
         current.enabled = values.currentEnabled;
         current.threshold = values.currentThreshold;
-      }, "Detector configuration applied");
+      }, "Rules applied.");
     });
     byId<HTMLFormElement>("rules-form").addEventListener("reset", () => {
       requestAnimationFrame(() => {
@@ -2230,7 +2230,7 @@ export class RobotReplayStudio {
           const restored = cloneDetectorConfiguration(defaults);
           detectors.version = restored.version;
           detectors.rules = restored.rules;
-        }, "Default detector configuration restored");
+        }, "Default rules restored.");
       });
     });
   }
@@ -2418,7 +2418,7 @@ export class RobotReplayStudio {
         normalizeTimestampOrigin: true,
         sourceName: file.name,
       };
-      setProgress(20, "Sending recording to the analysis worker…");
+      setProgress(20, "Reading recording…");
       const workerResult = await this.requestWorker(
         {
           type: "import-recording",
@@ -2443,9 +2443,7 @@ export class RobotReplayStudio {
       if (result.kind === "session") {
         next = cloneReplaySession(result.session);
         if (roleValue !== "session") {
-          warningMessages.push(
-            "Canonical session JSON preserves its encoded candidate and baseline roles; the complete session was loaded.",
-          );
+          warningMessages.push("This file is a full session, so it replaced both runs.");
         }
       } else {
         let run = result.run;
@@ -2460,9 +2458,6 @@ export class RobotReplayStudio {
                 new Set([this.session.runs.candidate.id]),
               ),
             };
-            warningMessages.push(
-              "The imported baseline reused the candidate ID, so it received a different internal ID.",
-            );
           }
           const aligned = alignBaselineRun(sourceSession.runs.candidate, {
             ...run,
@@ -2504,7 +2499,7 @@ export class RobotReplayStudio {
           next.provenance.sha256 = fingerprintReplaySessionContent(next);
         } else {
           warningMessages.push(
-            "Robot model, bus voltage, and physical footprint were not present in the run file; energy is unavailable and the generic footprint is visualization-only.",
+            "The file has no robot model, so energy isn't shown and the robot outline is generic.",
           );
           const importIdentity = sha256StableValue({
             runId: run.id,
@@ -2544,18 +2539,18 @@ export class RobotReplayStudio {
         setPristine: true,
         catalogIdentity: null,
         signal: abortController.signal,
-        announce: `Imported ${file.name} locally${warningMessages.length === 0 ? "" : ` · ${warningMessages.length} normalization note${warningMessages.length === 1 ? "" : "s"}`}`,
+        announce: `Imported ${file.name}.`,
       });
       assertCurrentImport();
       if (this.session !== next) {
         throw new DOMException("The import was superseded", "AbortError");
       }
-      setProgress(100, "Import complete");
+      setProgress(100, "Done");
       if (warningMessages.length === 0) {
         byId<HTMLDialogElement>("import-dialog").close();
       } else {
         errorBox.dataset.tone = "warning";
-        errorBox.textContent = `Import completed with ${warningMessages.length} normalization note${warningMessages.length === 1 ? "" : "s"}:\n\n${warningMessages.map((message) => `• ${message}`).join("\n")}`;
+        errorBox.textContent = `Imported with ${warningMessages.length} note${warningMessages.length === 1 ? "" : "s"}:\n\n${warningMessages.map((message) => `• ${message}`).join("\n")}`;
         errorBox.hidden = false;
         errorBox.focus();
       }
@@ -2653,9 +2648,7 @@ export class RobotReplayStudio {
             : `${affected} current samples scaled`;
       const note = document.createElement("small");
       note.textContent =
-        affected === 0
-          ? "Choose a non-zero transformation inside the recorded time range."
-          : "Current run stays intact.";
+        affected === 0 ? "Choose a non-zero transformation inside the recorded time range." : "";
       preview.replaceChildren(heading, strong, note);
       byId<HTMLButtonElement>("fault-apply").disabled = affected === 0;
     };
@@ -2702,11 +2695,11 @@ export class RobotReplayStudio {
           catalogIdentity: this.pristineCatalogIdentity,
           signal: abortController.signal,
           seekTimestamp,
-          announce: "Fault Lab branch reset",
+          announce: "Original run restored.",
         });
         assertNotAborted(abortController.signal);
         if (this.session !== next) {
-          throw new Error("Fault Lab reset was superseded before it could be committed");
+          throw new Error("The run changed before the reset finished. Try again.");
         }
         const dialog = byId<HTMLDialogElement>("fault-dialog");
         if (dialog.open) {
@@ -2785,7 +2778,10 @@ export class RobotReplayStudio {
       byId<HTMLDialogElement>("fault-dialog").close();
     } catch (error) {
       if (!abortController.signal.aborted && generation === this.faultGeneration) {
-        this.showToast(error instanceof Error ? error.message : "Fault branch failed", "error");
+        this.showToast(
+          error instanceof Error ? error.message : "Applying the fault failed. Try again.",
+          "error",
+        );
       }
     } finally {
       if (this.faultAbort === abortController) {
@@ -2833,7 +2829,7 @@ export class RobotReplayStudio {
       this.liveTransport.state !== "disconnected" &&
       this.liveTransport.state !== "complete";
     if (finalizing) {
-      button.textContent = "Analysing capture…";
+      button.textContent = "Analyzing capture…";
       button.disabled = true;
     } else if (retryAvailable) {
       button.textContent = "Retry capture analysis";
@@ -3033,9 +3029,9 @@ export class RobotReplayStudio {
         : state === "complete"
           ? "Stream complete"
           : state === "reconnecting"
-            ? "Transport interrupted · reconnect backoff active"
+            ? "Connection lost. Reconnecting…"
             : state === "stale"
-              ? "No recent samples · awaiting source"
+              ? "No samples for a while. Waiting for the source…"
               : state === "connecting"
                 ? "Connecting to telemetry stream"
                 : "No samples received";

@@ -858,12 +858,8 @@ export function renderSamplePanel(scope: RenderScope, state: SamplePanelRenderSt
       "nearest-delta",
       `RESUME ${formatTimecode(state.activeGap.endTimestamp - (state.startTimestamp ?? 0))}`,
     );
-    setText(scope, "nearest-title", "Holding last valid observation");
-    setText(
-      scope,
-      "nearest-description",
-      "No interpolation is performed across the missing-data interval.",
-    );
+    setText(scope, "nearest-title", "Telemetry gap");
+    setText(scope, "nearest-description", "The robot is shown at its last known position.");
     return;
   }
   const closest = nearestIncident(state.incidents ?? [], state.timestamp);
@@ -874,11 +870,7 @@ export function renderSamplePanel(scope: RenderScope, state: SamplePanelRenderSt
     setText(scope, "diagnostic-relation", "Diagnostics");
     setText(scope, "nearest-delta", "CLEAR");
     setText(scope, "nearest-title", "No incidents detected");
-    setText(
-      scope,
-      "nearest-description",
-      "All enabled and available detector rules report a clean run.",
-    );
+    setText(scope, "nearest-description", "No enabled rule fired.");
     return;
   }
   if (diagnostic !== null) {

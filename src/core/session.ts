@@ -93,7 +93,7 @@ export function createDefaultDetectorConfiguration(): DetectorConfiguration {
       ),
       overcurrent: detectorRule("overcurrent", "Motor overcurrent", 18, 0.25, "critical"),
       "low-battery": detectorRule("low-battery", "Low battery", 20, 1, "warning"),
-      "link-degradation": detectorRule("link-degradation", "Link degradation", 180, 0.5, "warning"),
+      "link-degradation": detectorRule("link-degradation", "Link latency", 180, 0.5, "warning"),
       "route-deviation": detectorRule("route-deviation", "Route deviation", 0.45, 0.25, "critical"),
       "heading-error": detectorRule("heading-error", "Heading error", 0.4, 0.5, "warning"),
       "obstacle-clearance": detectorRule(

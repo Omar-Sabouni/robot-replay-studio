@@ -1165,7 +1165,7 @@ function detectSessionIncidentsWithConfiguration(
     "link-degradation",
     samples.map(({ latencyMs }) => latencyMs),
     "above",
-    "Link degradation",
+    "Link latency high",
     "ms",
     "Inspect radio diagnostics and correlate latency with packet-counter discontinuities.",
     (observed, threshold) =>

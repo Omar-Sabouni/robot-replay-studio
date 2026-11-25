@@ -292,7 +292,7 @@
               </div>
               <div class="event-list" id="event-list">
                 <div class="event-empty" id="event-empty">
-                  <span class="loading-line"></span><span>Analysing detector rules…</span>
+                  <span class="loading-line"></span><span>Finding incidents…</span>
                 </div>
               </div>
               <footer class="panel-footer incident-footer">
@@ -382,7 +382,7 @@
             >
               <div class="panel-heading observation-head">
                 <div>
-                  <h2 id="inspector-title">Link latency above limit</h2>
+                  <h2 id="inspector-title">Link latency high</h2>
                 </div>
               </div>
               <div class="inspector-tabs" role="tablist" aria-label="Inspector views">
@@ -444,7 +444,7 @@
                     <div class="rule-card__head">
                       <span>Detector rule</span>
                     </div>
-                    <h3 id="rule-summary-title">Sustained data age exceeds 250 ms</h3>
+                    <h3 id="rule-summary-title">Link latency exceeds 250 ms</h3>
                     <p id="evidence-rule-description">
                       Fires when the rolling median remains beyond the limit for at least 400 ms.
                     </p>
@@ -460,7 +460,7 @@
                       <li data-state="active">
                         <i></i>
                         <div>
-                          <time>16.8 s</time><strong>Link degradation</strong
+                          <time>16.8 s</time><strong>Link latency high</strong
                           ><span>Latency +452 ms vs baseline</span>
                         </div>
                       </li>
@@ -551,11 +551,8 @@
                       <span id="diagnostic-relation">Active incident</span
                       ><span id="nearest-delta">T+00.000</span>
                     </div>
-                    <strong id="nearest-title">Link latency above limit</strong>
-                    <p id="nearest-description">
-                      Candidate samples are held across the missing-data interval and are never
-                      interpolated.
-                    </p>
+                    <strong id="nearest-title">Link latency high</strong>
+                    <p id="nearest-description"></p>
                   </div>
                   <span class="state-label visually-hidden" id="state-value"
                     >Reviewing incident</span
@@ -570,16 +567,15 @@
                   hidden
                 >
                   <div class="rules-intro">
-                    <p>Threshold changes re-run the detectors. Telemetry values stay unchanged.</p>
                     <span id="rules-enabled-count">10 enabled</span>
                   </div>
                   <form class="rules-form" id="rules-form">
                     <fieldset>
                       <legend>
-                        <span>Network latency</span
+                        <span>Link latency</span
                         ><label class="switch"
                           ><input id="rule-latency-enabled" type="checkbox" checked /><span></span
-                          ><b class="visually-hidden">Enable network latency detector</b></label
+                          ><b class="visually-hidden">Enable link latency detector</b></label
                         >
                       </legend>
                       <label for="rule-latency-threshold"
@@ -775,7 +771,7 @@
                   ><span id="duration-timecode">/ 00:45.000</span>
                 </div>
                 <div class="transport-context" id="transport-context">
-                  <span data-severity="warning">NET</span><strong>Link degraded</strong>
+                  <span data-severity="warning">NET</span><strong>Link latency high</strong>
                 </div>
                 <div
                   class="transport-group speed-controls"
@@ -881,12 +877,6 @@
                 ><button class="btn" id="import-cancel" type="button">Cancel</button>
               </div>
               <div class="form-errors" id="import-errors" role="alert" tabindex="-1" hidden></div>
-              <p class="privacy-note">
-                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <path d="m5 12 4 4L19 6" />
-                </svg>
-                The file is processed in this browser. Nothing is uploaded or saved.
-              </p>
             </div>
             <footer class="modal-footer">
               <button class="btn" type="button" data-dialog-close>Cancel</button
@@ -954,21 +944,6 @@
                 </div>
                 <code id="connection-buffer">0 / 50,000</code>
               </div>
-              <div class="protocol-note">
-                <strong>Wire contract</strong
-                ><span
-                  ><code>hello</code>, <code>sample</code>, <code>event</code>,
-                  <code>end</code></span
-                >
-              </div>
-              <p class="privacy-note">
-                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <circle cx="12" cy="12" r="9" />
-                  <path d="M12 11v6m0-10h.01" />
-                </svg>
-                HTTPS requires a user-initiated <code>wss:</code> connection. Credentials are not
-                stored.
-              </p>
             </div>
             <footer class="modal-footer">
               <button class="btn" type="button" data-dialog-close>Cancel</button
