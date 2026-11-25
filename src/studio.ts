@@ -901,8 +901,8 @@ export class RobotReplayStudio {
     const chartHint = document.querySelector<HTMLElement>(".chart-hint");
     if (chartHint !== null) {
       chartHint.textContent = hasBaseline
-        ? "Candidate + baseline / gaps preserved"
-        : "Candidate / gaps preserved";
+        ? "Candidate and baseline. Gaps show as breaks."
+        : "Candidate. Gaps show as breaks.";
     }
     byId("charts").setAttribute(
       "aria-label",
@@ -929,7 +929,7 @@ export class RobotReplayStudio {
     setText("duration-stat", `${this.duration.toFixed(3)} s`);
     setText(
       "export-scope",
-      `${this.prepared.baseline === null ? "Candidate" : "Candidate + baseline"} · incident report`,
+      `${this.prepared.baseline === null ? "Candidate" : "Candidate and baseline"} incident report`,
     );
     this.updateCharts();
     this.rebuildFallback();
@@ -2318,7 +2318,7 @@ export class RobotReplayStudio {
       if (detail !== null) {
         detail.textContent =
           file === null
-            ? "Session JSON, CSV, or ROS-bridge JSONL · up to 16 MiB"
+            ? "Session JSON, CSV or ROS-bridge JSONL, up to 16 MiB."
             : `${(file.size / 1024).toFixed(1)} KiB · processed locally in the current session`;
       }
       byId("import-errors").hidden = true;
@@ -2359,7 +2359,7 @@ export class RobotReplayStudio {
       strong.textContent = "Drop a recording or choose a file";
     }
     if (detail !== null && detail !== undefined) {
-      detail.textContent = "Session JSON, CSV, or ROS-bridge JSONL · up to 16 MiB";
+      detail.textContent = "Session JSON, CSV or ROS-bridge JSONL, up to 16 MiB.";
     }
     const submit = document.querySelector<HTMLButtonElement>("#import-submit");
     if (submit !== null) {
@@ -2638,7 +2638,7 @@ export class RobotReplayStudio {
       }
       const preview = byId("fault-preview");
       const heading = document.createElement("span");
-      heading.textContent = "Expected branch";
+      heading.textContent = "Effect";
       const strong = document.createElement("strong");
       strong.textContent =
         type === "dropout"

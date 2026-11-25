@@ -106,10 +106,11 @@ function parentKpi(scope: RenderScope, valueId: string): Element | null {
 }
 
 function runSummaryLabel(session: ReplaySessionV2): string {
-  const comparison = session.runs.baseline === undefined ? "Candidate" : "Candidate + baseline";
+  const comparison =
+    session.runs.baseline === undefined ? "Candidate run" : "Candidate and baseline runs";
   const sampleCount = session.runs.candidate.samples.length.toLocaleString();
   const sampleRate = session.runs.candidate.sampleRateHz;
-  return `${comparison} · ${sampleCount} samples${sampleRate === undefined ? "" : ` · ${formatNumber(sampleRate, { digits: 1, trimTrailingZeros: true })} Hz`}`;
+  return `${comparison}, ${sampleCount} samples${sampleRate === undefined ? "" : ` at ${formatNumber(sampleRate, { digits: 1, trimTrailingZeros: true })} Hz`}`;
 }
 
 function outcomeLabel(outcome: ReplaySessionV2["mission"]["outcome"]): string {
@@ -427,7 +428,7 @@ function renderSparkline(
   if (finitePoints.length < 2) {
     const unavailable = mount.ownerDocument.createElement("p");
     unavailable.className = "sparkline-unavailable";
-    unavailable.textContent = "Signal unavailable for this evidence window.";
+    unavailable.textContent = "This signal has no data around the incident.";
     mount.replaceChildren(unavailable);
     mount.setAttribute("aria-label", `${label}: signal unavailable`);
     return;
@@ -594,7 +595,7 @@ export function renderEvidencePanel(scope: RenderScope, state: EvidencePanelRend
         return "Robot speed";
     }
   })();
-  setText(scope, "evidence-sparkline-label", `${signalLabel} · evidence window`);
+  setText(scope, "evidence-sparkline-label", `${signalLabel} around the incident`);
   setText(scope, "evidence-sparkline-threshold-label", "Configured threshold");
 
   const verdict = find<HTMLElement>(scope, "evidence-observed")?.closest(".evidence-verdict");

@@ -73,7 +73,7 @@
                 </svg>
               </div>
               <span class="mission-run-summary" id="mission-run-summary"
-                >Candidate + baseline · 900 samples · 20 Hz</span
+                >Candidate and baseline runs, 900 samples at 20 Hz</span
               >
             </div>
 
@@ -818,7 +818,7 @@
                     <path d="M12 21V9m0 0-4 4m4-4 4 4M5 4h14" /></svg
                 ></span>
                 <strong>Drop a recording or choose a file</strong>
-                <span>Session JSON, CSV, or ROS-bridge JSONL · up to 16 MiB</span>
+                <span>Session JSON, CSV or ROS-bridge JSONL, up to 16 MiB.</span>
                 <input
                   class="visually-hidden"
                   id="import-file"
@@ -999,7 +999,7 @@
               </div>
               <div class="fault-controls">
                 <div class="fault-anchor">
-                  <span>Branch at playhead</span><strong id="fault-anchor-time">00:16.800</strong>
+                  <span>Starts at</span><strong id="fault-anchor-time">00:16.800</strong>
                 </div>
                 <label for="fault-duration"
                   >Duration <output id="fault-duration-output" for="fault-duration">1.2 s</output
@@ -1040,16 +1040,16 @@
                     disabled
                 /></label>
                 <div class="fault-preview" id="fault-preview">
-                  <span>Expected branch</span><strong>24 samples removed</strong
+                  <span>Effect</span><strong>24 samples removed</strong
                   ><small>Current run stays intact.</small>
                 </div>
               </div>
             </div>
             <footer class="modal-footer">
-              <button class="btn danger-quiet" id="fault-reset" type="button">Reset branch</button
+              <button class="btn danger-quiet" id="fault-reset" type="button">Remove fault</button
               ><span class="footer-spacer"></span
               ><button class="btn" type="button" data-dialog-close>Cancel</button
-              ><button class="btn btn-primary" id="fault-apply" type="submit">Apply branch</button>
+              ><button class="btn btn-primary" id="fault-apply" type="submit">Apply fault</button>
             </footer>
           </form>
         </dialog>

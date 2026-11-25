@@ -54,7 +54,7 @@ function monitorBrowserErrors(page: Page, allowedConsole: readonly RegExp[] = []
 async function openEastLoop(page: Page): Promise<void> {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: /East Loop safety intervention/ })).toBeVisible();
-  await expect(page.locator("#mission-run-summary")).toContainText("Candidate + baseline");
+  await expect(page.locator("#mission-run-summary")).toContainText("Candidate and baseline");
   await expect(page.locator("#mission-run-summary")).toContainText("20 Hz");
   await expect(page.locator("#event-list .event-card").first()).toBeAttached();
 }
@@ -177,13 +177,13 @@ test("Fault Lab creates a non-destructive branch and restores the source session
   await page.locator("#fault-apply").click();
   await expect(dialog).toBeHidden();
   await expect(page.locator("#toast-text")).toContainText("Packet dropout branch ready");
-  await expect(page.locator("#mission-run-summary")).toContainText("Candidate + baseline");
+  await expect(page.locator("#mission-run-summary")).toContainText("Candidate and baseline");
 
   await page.locator("#fault-open").click();
   await page.locator("#fault-reset").click();
   await expect(dialog).toBeHidden();
   await expect(page.locator("#toast-text")).toContainText("Original run restored.");
-  await expect(page.locator("#mission-run-summary")).toContainText("Candidate + baseline");
+  await expect(page.locator("#mission-run-summary")).toContainText("Candidate and baseline");
   expect(browserErrors).toEqual([]);
 });
 
@@ -223,7 +223,7 @@ test("local CSV import and the live simulator require no backend", async ({ page
   await importDialog.getByRole("button", { name: "Close import dialog" }).click();
   await expect(importDialog).toBeHidden();
   await expect(page.getByRole("heading", { name: /local-capture/i })).toBeVisible();
-  await expect(page.locator("#mission-run-summary")).toContainText("Candidate · 4 samples");
+  await expect(page.locator("#mission-run-summary")).toContainText("Candidate run, 4 samples");
   await expect(page.locator("#sample-stat")).toHaveText("4 samples");
 
   await page.locator("#live-open").click();
@@ -251,7 +251,7 @@ test("incident report exports detector results", async ({ page }) => {
   await exportButton.focus();
   await exportButton.press("Enter");
   await expect(exportButton).toHaveAttribute("aria-expanded", "true");
-  await expect(page.locator("#export-scope")).toContainText("Candidate + baseline");
+  await expect(page.locator("#export-scope")).toContainText("Candidate and baseline");
   const jsonAction = page
     .getByRole("group", { name: "Export report" })
     .getByRole("button", { name: /JSON report/ });

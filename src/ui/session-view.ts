@@ -214,9 +214,9 @@ export function detectorRuleDescription(rule: DetectorRuleConfig): string {
     return "";
   }
   if (rule.minimumDuration <= 0) {
-    return "Fires on the first sample that crosses the configured boundary.";
+    return "Triggers on the first sample past the threshold.";
   }
-  return `Fires when the boundary remains crossed for at least ${formatSeconds(rule.minimumDuration, rule.minimumDuration < 1 ? 2 : 1)}.`;
+  return `Triggers when the value stays past the threshold for at least ${formatSeconds(rule.minimumDuration, rule.minimumDuration < 1 ? 2 : 1)}.`;
 }
 
 export function detectorExpression(rule: DetectorRuleConfig): string {

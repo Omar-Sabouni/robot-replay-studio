@@ -682,7 +682,7 @@ export class SpatialFallbackView {
     this.status.setAttribute("aria-live", "polite");
     this.status.setAttribute("aria-atomic", "true");
     this.status.innerHTML =
-      '<span class="fallback-spinner" aria-hidden="true"></span><span>Loading spatial renderer</span>';
+      '<span class="fallback-spinner" aria-hidden="true"></span><span>Loading the 3D view…</span>';
     this.element.append(this.svg, this.status);
     container.append(this.element);
     this.setSelectedIncident(options.selectedIncident ?? null);
@@ -729,7 +729,7 @@ export class SpatialFallbackView {
     const spinner = document.createElement("span");
     spinner.className = "fallback-spinner";
     spinner.ariaHidden = "true";
-    this.status.append(spinner, document.createTextNode("Loading spatial renderer"));
+    this.status.append(spinner, document.createTextNode("Loading the 3D view…"));
   }
 
   setUnavailable(message = "3D rendering unavailable · top-down replay active"): void {
